@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>k-최근접 이웃 알고리즘 - TaeBbong의 Dev Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="TaeBbong의 Dev Blog"><meta name="msapplication-TileImage" content="/images/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="TaeBbong의 Dev Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="기계학습 알고리즘의 기초"><meta property="og:type" content="blog"><meta property="og:title" content="k-최근접 이웃 알고리즘"><meta property="og:url" content="https://taebbong.github.io/2018/01/02/2018-01-02-kNN-post/"><meta property="og:site_name" content="TaeBbong의 Dev Blog"><meta property="og:description" content="기계학습 알고리즘의 기초"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://taebbong.github.io/images/blog/knn_1.png"><meta property="og:image" content="https://taebbong.github.io/images/blog/knn_2.png"><meta property="og:image" content="https://taebbong.github.io/images/blog/knn_3.png"><meta property="og:image" content="https://taebbong.github.io/images/blog/knn_4.png"><meta property="article:published_time" content="2018-01-01T15:00:00.000Z"><meta property="article:modified_time" content="2022-08-06T06:14:20.857Z"><meta property="article:author" content="TaeBbong Kwon"><meta property="article:tag" content="ml"><meta property="article:tag" content="machine"><meta property="article:tag" content="learning"><meta property="article:tag" content="in"><meta property="article:tag" content="action"><meta property="article:tag" content="knn"><meta property="article:tag" content="python"><meta property="article:tag" content="mlia"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://taebbong.github.io/images/blog/knn_1.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://taebbong.github.io/2018/01/02/2018-01-02-kNN-post/"},"headline":"k-최근접 이웃 알고리즘","image":["https://taebbong.github.io/images/blog/knn_1.png","https://taebbong.github.io/images/blog/knn_2.png","https://taebbong.github.io/images/blog/knn_3.png","https://taebbong.github.io/images/blog/knn_4.png"],"datePublished":"2018-01-01T15:00:00.000Z","dateModified":"2022-08-06T06:14:20.857Z","author":{"@type":"Person","name":"TaeBbong Kwon"},"publisher":{"@type":"Organization","name":"TaeBbong의 Dev Blog","logo":{"@type":"ImageObject","url":"https://taebbong.github.io/images/logo.svg"}},"description":"기계학습 알고리즘의 기초"}</script><link rel="canonical" href="https://taebbong.github.io/2018/01/02/2018-01-02-kNN-post/"><link rel="icon" href="/images/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/images/logo.svg" alt="TaeBbong의 Dev Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2018-01-01T15:00:00.000Z" title="1/2/2018, 12:00:00 AM">2018-01-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2022-08-06T06:14:20.857Z" title="8/6/2022, 3:14:20 PM">2022-08-06</time></span><span class="level-item"><a class="link-muted" href="/categories/%EA%B0%9C%EB%B0%9C/">개발</a><span> / </span><a class="link-muted" href="/categories/%EA%B0%9C%EB%B0%9C/Machine-Learning/">Machine Learning</a></span><span class="level-item">22 minutes read (About 3226 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">k-최근접 이웃 알고리즘</h1><div class="content"><h2 id="시작하며"><a href="#시작하며" class="headerlink" title="시작하며"></a>시작하며</h2><ul>
+<li>안녕하세요, TaeBbong 입니다.</li>
+<li>오늘은 기계학습 알고리즘의 기초 수업의 첫 단계인 k-최근접 이웃 알고리즘, 이하 kNN 알고리즘에 대해 공부해볼겁니다.</li>
+<li>기계학습 알고리즘은 앞서 설명하였듯, 두 가지의 목적성으로 크게 나뉘어집니다.</li>
+<li>첫 번째는 분류, 두 번째는 회귀이지요.</li>
+<li>다시 이들은 지도 학습과 비지도 학습으로 나뉘어지는데, 이 부분은 <a href="">intro: 기계학습 알고리즘의 이해</a> 에서 자세히 살펴보시면 됩니다.</li>
+<li>오늘 공부할 kNN 알고리즘은 이 중 지도 학습 - 분류 알고리즘에 해당합니다.</li>
+<li>즉 input data에 대한 output 결과 data를 test set 으로 넣고 특정 데이터에 대한 결과를 예측하는 것이 목표이지요.</li>
+<li>또한 추정하고자 하는 것은 해당 데이터가 어느 분류에 속하는지, 분류를 알고 싶을 때 사용하게 됩니다.</li>
+<li>우선 오늘의 학습은 알고리즘 개념의 이해, 알고리즘 step 별 이해, 그리고 간단한 실습 프로젝트로 진행할 예정입니다.</li>
+</ul>
+<h2 id="프로젝트-목표"><a href="#프로젝트-목표" class="headerlink" title="프로젝트 목표"></a>프로젝트 목표</h2><ul>
+<li>kNN 알고리즘의 원리와 개념, 필요성 및 용도를 알 수 있다.</li>
+<li>kNN 알고리즘을 활용한 분류기를 제작할 수 있다.</li>
+<li>영화 분류기를 제작할 수 있다.</li>
+</ul>
+<h2 id="k-최근접-이웃-알고리즘이란"><a href="#k-최근접-이웃-알고리즘이란" class="headerlink" title="k-최근접 이웃 알고리즘이란?"></a>k-최근접 이웃 알고리즘이란?</h2><ul>
+<li>영화를 장르별로 분류한다고 생각합시다.</li>
+<li>어떤 영화가 액션영화, 로맨스영화일까요??</li>
+<li>많이 간단하게 생각하면, 스킨십 장면이 많이 나오는 영화는 로맨스, 발차기나 격투 장면이 많이 나오면 액션 영화이지 않을까?</li>
+<li>이와 같은 개념에서 만들어지는 알고리즘이 kNN 알고리즘입니다.</li>
+<li>어떠한 기준 factor 에 대해 분류를 하게 되는 것이지요.</li>
+<li>영화얘기는 생뚱 맞을 수 있으니 조금 더 이론적으로 접근합시다.</li>
+<li>kNN 알고리즘은 말 그대로 k개의 가장 근접한 이웃을 기반으로 분류하는 알고리즘입니다.</li>
+<li>한 데이터를 기준으로 k개의 가장 근접한 이웃들의 다수가 A 분류, 소수가 B 분류라면 해당 데이터는 A 분류에 속하게 되는 것이지요.</li>
+<li>즉, k개의 가장 근접한 이웃들이 해당 데이터의 분류를 결정하는, 즉 가까운 쪽에 속하게 되는 상당히 간단하고 쉬운 개념의 분류 알고리즘입니다.</li>
+<li>여기서 의문점이 생길 수 있어요.</li>
+<li>왜 가장 가까운 1개의 데이터에 따르지 않고 굳이 k개를 골라서 투표를 하는 번거로운 과정을 거칠까요?</li>
+<li>이는 이상데이터, outlier 때문입니다.</li>
+<li>데이터의 전체 경향을 볼 수 없는 상황에서 일반적이지 않은 예외스러운 데이터가 존재할 가능성이 다분하죠.</li>
+<li>가장 가까운 1개의 데이터를 고를 경우 이러한 outlier에 대한 처리가 미흡할 수 있기 때문에 우리는 k개를 선택합니다.</li>
+<li>이것이 k-NN의 기본적인 컨셉이죠.</li>
+</ul>
+<h2 id="kNN-알고리즘의-프로세스"><a href="#kNN-알고리즘의-프로세스" class="headerlink" title="kNN 알고리즘의 프로세스"></a>kNN 알고리즘의 프로세스</h2><ul>
+<li>kNN 알고리즘의 프로세스는 다음과 같아요. 간단하게 정리해봅시다.</li>
+</ul>
+<ol>
+<li>기존 훈련 데이터 집합(train data set)을 준비한다.</li>
+<li>해당 훈련 데이터들에는 라벨(label)이 붙어 있다. 즉 각 데이터가 어떤 분류인지 정해져있다.</li>
+<li>이후 라벨링이 되지 않은 새로운 데이터가 input 으로 들어온다.</li>
+<li>해당 데이터를 기준으로 ‘거리’가 가장 가까운 ‘k’개의 데이터를 뽑아 그 데이터들의 분류를 확인한다.</li>
+<li>이때 k개의 데이터들의 분류 중 가장 많은 쪽, 즉 다수결로 해당 데이터의 분류를 결정한다.</li>
+</ol>
+<ul>
+<li>상당히 간단한 프로세스에요.</li>
+<li>일반적인 기계학습 알고리즘이 갖는 훈련 집합을 기반으로 학습을 하고, 라벨링 과정을 거치지 않은 새로운 데이터의 라벨을 붙이는 과정.</li>
+<li>이것이 해당 알고리즘의 전부이죠.</li>
+<li>여기서 k는 임의의 정수 값으로, 알고리즘을 만드는 당신이 임의로 설정할 수 있어요!(일반적으로 20미만의 값)</li>
+<li>가장 합리적인 k값을 찾는 것 또한 하나의 object 이겠네요.</li>
+<li>또한 거리라는 개념을 썼는데, 거리는 여기서 유사도를 의미해요.</li>
+<li>기계학습 알고리즘에서 유사도를 측정하는 방법에는 여러가지가 있고, 지금 우리가 공부하는 kNN 알고리즘은 거리를 기반으로 계산하게 됩니다.</li>
+<li>이 거리를 어떻게 계산하는지는 추후에 알아봐봅시다:)</li>
+</ul>
+<h2 id="kNN-프로젝트-영화-분류기-만들기"><a href="#kNN-프로젝트-영화-분류기-만들기" class="headerlink" title="kNN 프로젝트: 영화 분류기 만들기"></a>kNN 프로젝트: 영화 분류기 만들기</h2><ul>
+<li>여기서는 여태 이해한 알고리즘을 직접 간단한 예제와 함께 만들어볼거에요!</li>
+<li>앗, 아직 우리는 거리를 계산하는 방식을 모르는군요!</li>
+<li>하지만 거리를 계산하려면 데이터가 필요하겠죠?</li>
+<li>그래서 지금 실제로 데이터를 가지고 다루어봅시다.</li>
+</ul>
+<ol>
+<li>데이터 이해하기 및 거리 계산에 대한 감 익히기</li>
+</ol>
+<ul>
+<li>우선 다음과 같은 영화별 액션 장면 수와 스킨십 장면 수가 있다고 해봅시다.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">title</th>
+<th align="center">#action scene</th>
+<th align="right">#romance scene</th>
+<th align="right">type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">movie 1</td>
+<td align="center">3</td>
+<td align="right">104</td>
+<td align="right">로맨스</td>
+</tr>
+<tr>
+<td align="left">movie 2</td>
+<td align="center">2</td>
+<td align="right">100</td>
+<td align="right">로맨스</td>
+</tr>
+<tr>
+<td align="left">movie 3</td>
+<td align="center">1</td>
+<td align="right">81</td>
+<td align="right">로맨스</td>
+</tr>
+<tr>
+<td align="left">movie 4</td>
+<td align="center">101</td>
+<td align="right">10</td>
+<td align="right">액션</td>
+</tr>
+<tr>
+<td align="left">movie 5</td>
+<td align="center">99</td>
+<td align="right">5</td>
+<td align="right">액션</td>
+</tr>
+<tr>
+<td align="left">movie 6</td>
+<td align="center">98</td>
+<td align="right">2</td>
+<td align="right">액션</td>
+</tr>
+<tr>
+<td align="left">movie ?</td>
+<td align="center">18</td>
+<td align="right">90</td>
+<td align="right">?</td>
+</tr>
+</tbody></table>
+<ul>
+<li>이때 거리는 다음과 같이 계산해요.</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">d = sqrt((x1 - x2)^2 + (y1 - y2)^2)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>일반적인 2차원 평면 상의 거리 계산 식과 같죠?</li>
+<li>당연히 여기서 x와 y는 #action scene, #romance scene을 의미합니다:)</li>
+<li>그렇게 ‘movie ?’을 기준으로 계산한 거리는 다음과 같아요.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">title</th>
+<th align="left">distance from ?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">movie 1</td>
+<td align="left">20.5</td>
+</tr>
+<tr>
+<td align="left">movie 2</td>
+<td align="left">18.7</td>
+</tr>
+<tr>
+<td align="left">movie 3</td>
+<td align="left">19.2</td>
+</tr>
+<tr>
+<td align="left">movie 4</td>
+<td align="left">115.3</td>
+</tr>
+<tr>
+<td align="left">movie 5</td>
+<td align="left">117.4</td>
+</tr>
+<tr>
+<td align="left">movie 6</td>
+<td align="left">118.9</td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li>실제 코드 작성해보기</li>
+</ol>
+<ul>
+<li><p>그럼 이제 실제 코드를 작성해볼까요!</p>
+</li>
+<li><p>우선 프로젝트를 생성하고, 두 개의 파이썬 파일을 만들거에요.</p>
+</li>
+<li><p>하나는 함수 라이브러리, 나머지 하나는 본체 코드이지요.</p>
+</li>
+<li><p>kNN.py</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> operator</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">createDataSet</span>():</span><br><span class="line"></span><br><span class="line">    group = array([[<span class="number">3.0</span>, <span class="number">104.0</span>], [<span class="number">2.0</span>, <span class="number">100.0</span>], [<span class="number">1.0</span>, <span class="number">81.0</span>],</span><br><span class="line">    	    [<span class="number">101.0</span>, <span class="number">10.0</span>], [<span class="number">99.0</span>, <span class="number">5.0</span>], [<span class="number">98.0</span>, <span class="number">2.0</span>]]) <span class="comment"># [#action_scene, #romance_scene]</span></span><br><span class="line">    labels = [<span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;A&#x27;</span>] <span class="comment"># R: Romance, A: Action</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> group, labels</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">classify</span>(<span class="params">inX, dataSet, labels, k</span>): <span class="comment"># classifier method(inX: data that we want to know, dataSet: trained dataset, labels: label of each trained data, k: number of neighbors we chose)</span></span><br><span class="line"></span><br><span class="line">    dataSetSize = dataSet.shape[<span class="number">0</span>] <span class="comment"># total data train set&#x27;s size</span></span><br><span class="line">    diffMat = tile(inX, (dataSetSize, <span class="number">1</span>)) - dataSet <span class="comment"># make matrix that is fully completed with inX, then calc difference</span></span><br><span class="line">    sqDiffMat = diffMat ** <span class="number">2</span> <span class="comment"># mult each data in diffMat</span></span><br><span class="line">    sqDistances = sqDiffMat.<span class="built_in">sum</span>(axis = <span class="number">1</span>) <span class="comment"># sum each data&#x27;s mult results in diffMat</span></span><br><span class="line">    distances = sqDistances ** <span class="number">0.5</span> <span class="comment"># sqrt sqDistances</span></span><br><span class="line">    sortedDistIndices = distances.argsort() <span class="comment"># sort sqDistances so low data comes to the top</span></span><br><span class="line">    classCount = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(k): <span class="comment"># select k(3) nearest neighbors from to the top: (0, 1, 2)</span></span><br><span class="line">        voteIlabel = labels[sortedDistIndices[i]] <span class="comment"># find each neighbor&#x27;s label</span></span><br><span class="line">        classCount[voteIlabel] = classCount.get(voteIlabel, <span class="number">0</span>) + <span class="number">1</span> <span class="comment"># count up neighbor&#x27;s label count</span></span><br><span class="line"></span><br><span class="line">    sortedClassCount = <span class="built_in">sorted</span>(classCount.items(), key = operator.itemgetter(<span class="number">1</span>), reverse = <span class="literal">True</span>) <span class="comment"># sort all label counts in descending order</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> sortedClassCount[<span class="number">0</span>][<span class="number">0</span>] <span class="comment"># return most voted label</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>좋아요! 이렇게 하면 훈련 데이터 셋을 정의, 만들어서 반환까지 하는 함수를 만든 것이죠.</p>
+</li>
+<li><p>분류기 함수가 정의되어있고, 알고 싶은 데이터와 기존 데이터 값, 그리고 몇 개의 이웃을 쓸지 설정합니다.</p>
+</li>
+<li><p>그리고 첫 블록의 코드들은 코드만 복잡하지 각 데이터 별 알고 싶은 데이터와의 거리 값을 계산하는 코드를 나눠 써놓은거에요.</p>
+</li>
+<li><p>반복문에 있는 건 그렇게 거리 순으로 정렬된 데이터에서 가장 위의 k개의 데이터들의 label 값들을 조사해서 이를 또 다시 dictionary에 저장하고,</p>
+</li>
+<li><p>이들을 또 다시 정렬, 가장 높은 표를 받은 label 값을 반환하는 것이죠.</p>
+</li>
+<li><p>프로그램을 실제로 실행하는 메인 부분입니다.</p>
+</li>
+<li><p>main.py</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> kNN</span><br><span class="line"></span><br><span class="line"><span class="comment"># executing whole codes with sample data [18, 90]</span></span><br><span class="line">group, labels = kNN.createDataSet()</span><br><span class="line"><span class="built_in">print</span>(kNN.classify([<span class="number">18</span>, <span class="number">90</span>], group, labels, <span class="number">3</span>))</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>main.py를 실행시키면 다음과 같은 결과가 나와요!</li>
+</ul>
+<p><img src="https://taebbong.github.io/images/blog/knn_1.png" alt="kNN Result">{:width&#x3D;”500” height&#x3D;”200”}</p>
+<ol start="3">
+<li>분류기 검사해보기</li>
+</ol>
+<ul>
+<li><p>기계학습 알고리즘을 만들 때 가장 필요한 작업은 검증 작업입니다.</p>
+</li>
+<li><p>해당 분류기가 정말 잘 돌아가는지 확인하려면 어떻게 해야할까요?</p>
+</li>
+<li><p>우선은 자체적 안정성을 위해 훈련용 데이터가 많이 필요하겠죠.</p>
+</li>
+<li><p>또한 일부 데이터는 라벨이 없는 채로 들어가 본인의 실제 라벨과 분류기에서 판단한 라벨이 동일한지도 확인해야겠어요.</p>
+</li>
+<li><p>이 비율을 뭐 적당히 훈련 8: 테스트 2 로 정해봅시다.</p>
+</li>
+<li><p>이와 같이 전체 훈련용 데이터 집합에서 일부를 테스트 데이터로 따로 빼서 검증하고, 그러한 일부를 무작위로 수차례 뽑아서 테스트를 진행하는 것을 ‘교차 검증’ Cross Validation 이라고 합니다.</p>
+</li>
+<li><p>여기서는 이를 자세히 다루지는 않겠지만, 조만간 포스트에서 이를 코드로까지 구현해볼거에요.</p>
+</li>
+<li><p>대신 우리는 그럼 간단하게 수차례 뽑지 않고 한 번만 뽑아서 테스트를 해볼게요.</p>
+</li>
+<li><p>다시 코드를 작성해볼까요?</p>
+</li>
+<li><p>kNN.py</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">validTest</span>():</span><br><span class="line"></span><br><span class="line">    hoRatio = <span class="number">0.2</span></span><br><span class="line">    dataSet, labels = createDataSet() <span class="comment"># set data</span></span><br><span class="line">    m = dataSet.shape[<span class="number">0</span>] <span class="comment"># set empty matrix with dataSet</span></span><br><span class="line">    numTestVecs = <span class="built_in">int</span>(m * hoRatio) <span class="comment"># number of test data</span></span><br><span class="line">    errorCount = <span class="number">0.0</span> <span class="comment"># error count</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(numTestVecs): <span class="comment"># select numTestVecs from dataSet to testSet</span></span><br><span class="line">        classifierResults = classify(dataSet[i, :], dataSet[numTestVecs:m, :], labels[numTestVecs:m], <span class="number">3</span>) <span class="comment"># test with testSet and trainSet</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;classifier:&#x27;</span>, <span class="built_in">str</span>(classifierResults), <span class="string">&#x27;real:&#x27;</span>, <span class="built_in">str</span>(labels[i])) <span class="comment"># print results</span></span><br><span class="line">        <span class="keyword">if</span> classifierResults <span class="keyword">is</span> <span class="keyword">not</span> labels[i]: <span class="comment"># count up</span></span><br><span class="line">            errorCount += <span class="number">1.0</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;error rate:&#x27;</span>, <span class="built_in">str</span>(errorCount / <span class="built_in">float</span>(numTestVecs))) <span class="comment"># print error rate</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>main.py</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kNN.validTest()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>결과는 어떻게 나왔나요?</li>
+</ul>
+<p><img src="https://taebbong.github.io/images/blog/knn_2.png" alt="ValidTest Result">{:width&#x3D;”500” height&#x3D;”100”}</p>
+<ul>
+<li>현재 데이터셋이 6개 밖에 없어 0.2 비율로 하면 1개 뿐이라 결과가 잘 나온 것처럼 보이네요.</li>
+<li>이처럼 검증 과정을 거치기 위해선 데이터가 꽤 필요하답니다:)</li>
+</ul>
+<h2 id="번외-scikit-learn을-써보자"><a href="#번외-scikit-learn을-써보자" class="headerlink" title="번외: scikit-learn을 써보자."></a>번외: scikit-learn을 써보자.</h2><ul>
+<li><p>우리는 여태 꽤 많은 코드를 작성했어요.</p>
+</li>
+<li><p>거리계산부터 정렬, 선별, 투표, 결정 그리고 마지막 검증까지.</p>
+</li>
+<li><p>이러한 kNN 알고리즘은 이 모델이 대부분이에요.</p>
+</li>
+<li><p>즉 분류기는 변하지 않는다는 말이죠.</p>
+</li>
+<li><p>그렇다면 이 코드를 매번 작성 해야할까요?</p>
+</li>
+<li><p>다행스럽게도, 이와 같은 알고리즘들을 라이브러리 형태로 만들어놓은 오픈 소스가 있습니다.</p>
+</li>
+<li><p>바로 <a href="scikit-learn.org">scikit-learn</a>이지요!</p>
+</li>
+<li><p>scikit-learn에는 오늘 배운 kNN 알고리즘 뿐만 아니라 여러 앞으로 배울 기계학습 알고리즘들이 존재합니다.</p>
+</li>
+<li><p>오늘 그러면 간단하게 이를 사용해보도록 해요:) 코드가 대폭 줄어드는 경험을 할 것입니다.</p>
+</li>
+<li><p>일단 scikit-learn을 사용하려면 설치를 해야해요.</p>
+</li>
+<li><p>터미널을 켜봅시다.</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pip install scikit-learn</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>간단하게 설치를 마쳐주고, 코드를 작성해봅시다:)</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.neighbors <span class="keyword">import</span> KNeighborsClassifier <span class="comment"># import kNN from scikit learn</span></span><br><span class="line"></span><br><span class="line">group = [[<span class="number">3.0</span>, <span class="number">104.0</span>], [<span class="number">2.0</span>, <span class="number">100.0</span>], [<span class="number">1.0</span>, <span class="number">81.0</span>], [<span class="number">101.0</span>, <span class="number">10.0</span>], [<span class="number">99.0</span>, <span class="number">5.0</span>], [<span class="number">98.0</span>, <span class="number">2.0</span>]] <span class="comment"># [#action_scene, #romance_scene]</span></span><br><span class="line">labels = [<span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;R&#x27;</span>, <span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;A&#x27;</span>] <span class="comment"># R: Romance, A: Action</span></span><br><span class="line"></span><br><span class="line">neigh = KNeighborsClassifier(n_neighbors = <span class="number">3</span>) <span class="comment"># define model</span></span><br><span class="line">neigh.fit(group, labels) <span class="comment"># do it!</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(neigh.predict([[<span class="number">18.0</span>, <span class="number">200.0</span>]])) <span class="comment"># print result</span></span><br><span class="line"><span class="built_in">print</span>(neigh.predict_proba([[<span class="number">40.0</span>, <span class="number">70.0</span>]])) <span class="comment"># print result&#x27;s vote report</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>결과는 다음과 같아요.</li>
+</ul>
+<p><img src="https://taebbong.github.io/images/blog/knn_3.png" alt="scikit-knn">{:width&#x3D;”500” height&#x3D;”100”}</p>
+<ul>
+<li>정말 억울할 정도로 간단하죠?</li>
+<li>이처럼 scikit-learn을 활용하면 코드를 훨씬 쉽게 쓸 수 있어요!</li>
+<li>공부하는 차원에서는 일단 많이 쓰지는 않을게요:)</li>
+</ul>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><ul>
+<li>오늘 살펴본 알고리즘, 어렵지 않았죠?</li>
+<li>분류기 예제 문제 자체가 상당히 간단하지만, 이게 다에요:)</li>
+<li>(사실 NN regression, unsupervised NN, kDTree처럼 아직 못한게 많지만)</li>
+<li>여기에 데이터를 형태에 따라 수치형으로 가공하고, 정규화를 시키고 하는 데이터 처리 기법만 다를 뿐 기본 베이스 알고리즘은 똑같답니다.</li>
+<li>물론 이제 새로 테스트 해본 데이터를 훈련 데이터 집합에 추가하여 점점 똑똑해지는 방식을 취할 수 있지만 이는 굳이 여기서 다루진 않을게요.(append만 하면 되니..)</li>
+<li>여기까지 k-NN 알고리즘이었습니다:)</li>
+</ul>
+<ul>
+<li>기계학습의 기초 포스팅은 다음 도서를 교재로 사용하고,<br><img src="https://taebbong.github.io/images/blog/knn_4.png" alt="Machine Learning in Action">{:width&#x3D;”50” height&#x3D;”100”}</li>
+<li>다음 API Document를 참고합니다.</li>
+<li><a href="scikit-learn.org">scikit-learn</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>k-최근접 이웃 알고리즘</p><p><a href="https://taebbong.github.io/2018/01/02/2018-01-02-kNN-post/">https://taebbong.github.io/2018/01/02/2018-01-02-kNN-post/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>TaeBbong Kwon</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2018-01-02</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2022-08-06</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/ml/">ml</a><a class="link-muted mr-2" rel="tag" href="/tags/machine/">machine</a><a class="link-muted mr-2" rel="tag" href="/tags/learning/">learning</a><a class="link-muted mr-2" rel="tag" href="/tags/in/">in</a><a class="link-muted mr-2" rel="tag" href="/tags/action/">action</a><a class="link-muted mr-2" rel="tag" href="/tags/knn/">knn</a><a class="link-muted mr-2" rel="tag" href="/tags/python/">python</a><a class="link-muted mr-2" rel="tag" href="/tags/mlia/">mlia</a></div><div class="notification is-danger">You need to set <code>install_url</code> to use ShareThis. Please set it in <code>_config.yml</code>.</div></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><div class="notification is-danger">You forgot to set the <code>business</code> or <code>currency_code</code> for Paypal. Please set it in <code>_config.yml</code>.</div><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2018/01/03/2018-01-03-node-01/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">[1강~2강] node.js 원리, 개념, 개발환경 구축</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2018/01/01/2018-01-01-jekyll-git-post/"><span class="level-item">GitHub 블로그 만들기 &amp; Jekyll로 꾸미기</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div class="notification is-danger">You forgot to set the <code>shortname</code> for Disqus. Please set it in <code>_config.yml</code>.</div></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.png" alt="Your name"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Your name</p><p class="is-size-6 is-block">Your title</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Your location</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">65</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">20</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">82</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/ppoffice" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/ppoffice"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li><li><a class="level is-mobile" href="https://bulma.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Bulma</span></span><span class="level-right"><span class="level-item tag">bulma.io</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/TIL-TID/"><span class="level-start"><span class="level-item">TIL&amp;TID</span></span><span class="level-end"><span class="level-item tag">8</span></span></a><ul><li><a class="level is-mobile" href="/categories/TIL-TID/Flutter/"><span class="level-start"><span class="level-item">Flutter</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/TIL-TID/Security/"><span class="level-start"><span class="level-item">Security</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EA%B0%95%EC%9D%98/"><span class="level-start"><span class="level-item">강의</span></span><span class="level-end"><span class="level-item tag">11</span></span></a><ul><li><a class="level is-mobile" href="/categories/%EA%B0%95%EC%9D%98/%EB%AC%B4%EC%9E%91%EC%A0%95-%ED%92%80%EC%8A%A4%ED%83%9D-%ED%94%8C%EB%9F%AC%ED%84%B0-DRF-%ED%80%B4%EC%A6%88%EC%95%B1/"><span class="level-start"><span class="level-item">(무작정 풀스택) 플러터/DRF 퀴즈앱</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%95%EC%9D%98/%EB%AC%B4%EC%9E%91%EC%A0%95-%ED%94%8C%EB%9F%AC%ED%84%B0-%EB%84%B7%ED%94%8C%EB%A6%AD%EC%8A%A4-%ED%81%B4%EB%A1%A0-%EC%BD%94%EB%94%A9/"><span class="level-start"><span class="level-item">(무작정 플러터) 넷플릭스 클론 코딩</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/"><span class="level-start"><span class="level-item">개발</span></span><span class="level-end"><span class="level-item tag">31</span></span></a><ul><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/AWS/"><span class="level-start"><span class="level-item">AWS</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/Django-Rest-Framework/"><span class="level-start"><span class="level-item">Django Rest Framework</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/Flutter/"><span class="level-start"><span class="level-item">Flutter</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/Jekyll-Hexo/"><span class="level-start"><span class="level-item">Jekyll &amp; Hexo</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/Machine-Learning/"><span class="level-start"><span class="level-item">Machine Learning</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/Node-js/"><span class="level-start"><span class="level-item">Node.js</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/Web-Scraping-Crawling/"><span class="level-start"><span class="level-item">Web Scraping &amp; Crawling</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/%EA%B0%95%EC%9D%98%EC%9E%90%EB%A3%8C/"><span class="level-start"><span class="level-item">강의자료</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%EA%B0%9C%EB%B0%9C/%EA%B0%9C%EB%B0%9C-Tip/"><span class="level-start"><span class="level-item">개발 Tip</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/%EC%83%9D%ED%99%9C/"><span class="level-start"><span class="level-item">생활</span></span><span class="level-end"><span class="level-item tag">13</span></span></a><ul><li><a class="level is-mobile" href="/categories/%EC%83%9D%ED%99%9C/%EC%9B%8C%ED%82%B9-%EB%9D%BC%EC%9D%B4%ED%94%84/"><span class="level-start"><span class="level-item">워킹 라이프</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%EC%83%9D%ED%99%9C/%EC%9D%BC%EC%83%81/"><span class="level-start"><span class="level-item">일상</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/%EC%83%9D%ED%99%9C/%ED%9A%8C%EA%B3%A0/"><span class="level-start"><span class="level-item">회고</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li></ul></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-08-06T06:14:20.971Z">2022-08-06</time></p><p class="title"><a href="/2022/08/06/index/"> </a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/2022/03/11/2022-03-11-docker/"><img src="https://media.vlpt.us/images/t1won/post/e8f16b23-749e-4097-afc2-e3803e4568a4/docker.png" alt="[개발] Docker 개념 정리 &amp; Docker로 postgres 설치/운용하기"></a></figure><div class="media-content"><p class="date"><time dateTime="2022-03-11T11:23:36.000Z">2022-03-11</time></p><p class="title"><a href="/2022/03/11/2022-03-11-docker/">[개발] Docker 개념 정리 &amp; Docker로 postgres 설치/운용하기</a></p><p class="categories"><a href="/categories/%EA%B0%9C%EB%B0%9C/">개발</a> / <a href="/categories/%EA%B0%9C%EB%B0%9C/%EA%B0%9C%EB%B0%9C-Tip/">개발 Tip</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/2022/03/11/2022-04-25-deep-dive-docker/"><img src="https://media.vlpt.us/images/t1won/post/e8f16b23-749e-4097-afc2-e3803e4568a4/docker.png" alt="[개발] Docker 개념 정리 &amp; Docker로 postgres 설치/운용하기"></a></figure><div class="media-content"><p class="date"><time dateTime="2022-03-11T11:23:36.000Z">2022-03-11</time></p><p class="title"><a href="/2022/03/11/2022-04-25-deep-dive-docker/">[개발] Docker 개념 정리 &amp; Docker로 postgres 설치/운용하기</a></p><p class="categories"><a href="/categories/%EA%B0%9C%EB%B0%9C/">개발</a> / <a href="/categories/%EA%B0%9C%EB%B0%9C/%EA%B0%9C%EB%B0%9C-Tip/">개발 Tip</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/2022/03/10/2022-03-10-backend/"><img src="https://linuxconfig.org/wp-content/uploads/2020/03/Focal-Fossa_WP_1920x1080_1.png" alt="[개발] Ubuntu 20.04 Desktop 서버에 백엔드 서비스를 올리는 과정"></a></figure><div class="media-content"><p class="date"><time dateTime="2022-03-10T11:23:36.000Z">2022-03-10</time></p><p class="title"><a href="/2022/03/10/2022-03-10-backend/">[개발] Ubuntu 20.04 Desktop 서버에 백엔드 서비스를 올리는 과정</a></p><p class="categories"><a href="/categories/%EA%B0%9C%EB%B0%9C/">개발</a> / <a href="/categories/%EA%B0%9C%EB%B0%9C/%EA%B0%9C%EB%B0%9C-Tip/">개발 Tip</a></p></div></article><article class="media"><figure class="media-left"><a class="image" href="/2022/01/03/2022-01-03-app-key-social/"><img src="https://taebbong.github.io/images/blog/flutter-logo-sharing.png" alt="[개발] 앱 개발자 키 &amp; 앱 서명에 관하여"></a></figure><div class="media-content"><p class="date"><time dateTime="2022-01-03T11:23:36.000Z">2022-01-03</time></p><p class="title"><a href="/2022/01/03/2022-01-03-app-key-social/">[개발] 앱 개발자 키 &amp; 앱 서명에 관하여</a></p><p class="categories"><a href="/categories/%EA%B0%9C%EB%B0%9C/">개발</a> / <a href="/categories/%EA%B0%9C%EB%B0%9C/%EA%B0%9C%EB%B0%9C-Tip/">개발 Tip</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/04/"><span class="level-start"><span class="level-item">April 2021</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/12/"><span class="level-start"><span class="level-item">December 2020</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/06/"><span class="level-start"><span class="level-item">June 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/04/"><span class="level-start"><span class="level-item">April 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/03/"><span class="level-start"><span class="level-item">March 2020</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/01/"><span class="level-start"><span class="level-item">January 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/12/"><span class="level-start"><span class="level-item">December 2019</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/11/"><span class="level-start"><span class="level-item">November 2019</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/07/"><span class="level-start"><span class="level-item">July 2019</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/05/"><span class="level-start"><span class="level-item">May 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/04/"><span class="level-start"><span class="level-item">April 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/02/"><span class="level-start"><span class="level-item">February 2019</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2018/12/"><span class="level-start"><span class="level-item">December 2018</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2018/04/"><span class="level-start"><span class="level-item">April 2018</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2018/03/"><span class="level-start"><span class="level-item">March 2018</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2018/01/"><span class="level-start"><span class="level-item">January 2018</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/2018/"><span class="tag">2018</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BloC/"><span class="tag">BloC</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Chrome/"><span class="tag">Chrome</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Chromedriver/"><span class="tag">Chromedriver</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DB/"><span class="tag">DB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Django-Rest-Framework/"><span class="tag">Django Rest Framework</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Flutter/"><span class="tag">Flutter</span><span class="tag">12</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JAVA/"><span class="tag">JAVA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MAC/"><span class="tag">MAC</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MYSQL/"><span class="tag">MYSQL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Provider/"><span class="tag">Provider</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Python/"><span class="tag">Python</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Selenium/"><span class="tag">Selenium</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/State/"><span class="tag">State</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TaeBbong/"><span class="tag">TaeBbong</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ubuntu/"><span class="tag">Ubuntu</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/about/"><span class="tag">about</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/action/"><span class="tag">action</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/alone/"><span class="tag">alone</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/api/"><span class="tag">api</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/aws/"><span class="tag">aws</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/backend/"><span class="tag">backend</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/bash/"><span class="tag">bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/blog/"><span class="tag">blog</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/bs4/"><span class="tag">bs4</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/command/"><span class="tag">command</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/crawling/"><span class="tag">crawling</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/development/"><span class="tag">development</span><span class="tag">16</span></a></div><div class="control"><a class="tags has-addons" href="/tags/diary/"><span class="tag">diary</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/django/"><span class="tag">django</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/drf/"><span class="tag">drf</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/git/"><span class="tag">git</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/github/"><span class="tag">github</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/in/"><span class="tag">in</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/intern/"><span class="tag">intern</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/javascript/"><span class="tag">javascript</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/jekyll/"><span class="tag">jekyll</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/keyboard/"><span class="tag">keyboard</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/knn/"><span class="tag">knn</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/learning/"><span class="tag">learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/lecture/"><span class="tag">lecture</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/life/"><span class="tag">life</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/lifestyle/"><span class="tag">lifestyle</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/machine/"><span class="tag">machine</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ml/"><span class="tag">ml</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mlia/"><span class="tag">mlia</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/node/"><span class="tag">node</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/node-js/"><span class="tag">node.js</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/object/"><span class="tag">object</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/page/"><span class="tag">page</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/picasso/"><span class="tag">picasso</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span><span class="tag">14</span></a></div><div class="control"><a class="tags has-addons" href="/tags/remember/"><span class="tag">remember</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/requests/"><span class="tag">requests</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/scrapy/"><span class="tag">scrapy</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/selenium/"><span class="tag">selenium</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/server/"><span class="tag">server</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/session/"><span class="tag">session</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/setState/"><span class="tag">setState</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/startup/"><span class="tag">startup</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/study/"><span class="tag">study</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/taebbong/"><span class="tag">taebbong</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/target/"><span class="tag">target</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/terminal/"><span class="tag">terminal</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/theme/"><span class="tag">theme</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/think/"><span class="tag">think</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/together/"><span class="tag">together</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/voyagerx/"><span class="tag">voyagerx</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/web/"><span class="tag">web</span><span class="tag">14</span></a></div><div class="control"><a class="tags has-addons" href="/tags/work/"><span class="tag">work</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EA%B0%95%EC%9D%98/"><span class="tag">강의</span><span class="tag">11</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EA%B0%9C%EB%B0%9C%EC%9E%90/"><span class="tag">개발자</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EA%B8%B0%EA%B3%84%EC%8B%9D%ED%82%A4%EB%B3%B4%EB%93%9C/"><span class="tag">기계식키보드</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EB%84%A4%EB%AA%A8/"><span class="tag">네모</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EB%A7%A5/"><span class="tag">맥</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EC%83%81%ED%83%9C%EA%B4%80%EB%A6%AC/"><span class="tag">상태관리</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EC%8B%A4%ED%96%89/"><span class="tag">실행</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EC%9E%90%EB%B0%94/"><span class="tag">자바</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%EC%9E%A5%EA%B3%A0/"><span class="tag">장고</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%ED%82%A4%EB%B3%B4%EB%93%9C/"><span class="tag">키보드</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%ED%8C%8C%EC%9D%B4%EC%8D%AC/"><span class="tag">파이썬</span><span class="tag">6</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget"><div class="card-content"><div class="notification is-danger">You need to set <code>client_id</code> and <code>slot_id</code> to show this AD unit. Please set it in <code>_config.yml</code>.</div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/images/logo.svg" alt="TaeBbong의 Dev Blog" height="28"></a><p class="is-size-7"><span>&copy; 2022 TaeBbong Kwon</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
